@@ -6,9 +6,10 @@ const GameSchema = new mongoose.Schema({
   game: {type: String, required: true},
   timesPlayed: {type: Number},
   timesWon: {type: Number},
-  timesLost: {type: Number},
   highscore:{type: Number}
 });
+
+
 const GameModel = mongoose.model('Games', GameSchema);
 
 const UserSchema = new mongoose.Schema({

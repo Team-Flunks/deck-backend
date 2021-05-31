@@ -17,36 +17,10 @@ app.use(express.json());
 //Created files
 const UserInfo=require('./models/UserInfo.js');
 // const GameModel=require('./models/UserInfo.js');
-// const UserModel=require('./models/UserInfo.js');
+const UserModel=require('./models/UserInfo.js');
 
 const verifyToken=require('./modules/verification.js');
 
-// const GameUser=require('./modules/server2.js');
-
-//===============jwt verification stuff===============
-
-// const client = jwksClient({
-//   //Might need to change depending on Auth0 weirdness
-//   jwksUri: 'https://keian-auth.us.auth0.com/.well-known/jwks.json',
-// });
-
-
-// function getKey(header, callback) {
-//   client.getSigningKey(header.kid, function (err, key) {
-//     const signingKey = key.publicKey || key.rsaPublicKey;
-//     callback(null, signingKey);
-//   });
-// }
-
-// function verifyToken(token, callback) {
-//   jwt.verify(token, getKey, {}, (err, user) => {
-//     if (err) {
-//       console.error('Something went wrong');
-//       return callback(err);
-//     }
-//     callback(user);
-//   })
-// }
 
 //===============Mongoose database setup===============
 console.log(process.env.MONGODB_URI);
@@ -67,14 +41,12 @@ db.once('open', function () {
             game: 'Test Knowledge Big Brain Time',
             timesPlayed: 3,
             timesWon: 2,
-            timesLost: 1,
             highscore: 7
           });
           const secondGame = new UserInfo.GameModel({
             game: 'Which Pokemon Though',
             timesPlayed: 5,
             timesWon: 2,
-            timesLost: 3,
             highscore: 4
           });
           const TestUser = new UserInfo.UserModel({ email: 'chaboffe@gmail.com', gameRecords: [firstGame, secondGame] });
@@ -141,46 +113,29 @@ app.get('/allUsers', (req, res) => {
 
 
 app.put('/updateUser', (request,response) => {
+  console.log('Update User Information coming in from client side');
   console.log(request.params, request.query)
+
   const token = request.headers.authorization.split(' ')[1];
-  console.log(token);
   verifyToken(token, updateUserScore);
 
-  // Callback function
-  // Game: {type: String, required: true},
-  // timesPlayed: {type: Number},
-  // timesWon: {type: Number},
-  // timesLost: {type: Number},
-  // highscore:{type: Number}
-
+ 
   async function updateUserScore(user) {
     const gameIn = request.query.game
-    const timesPlayedIn = parseInt(request.query.timesPlayed);
-    const timesWonIn = parseInt(request.query.timesWon);
-    const timesLostIn = parseInt(request.query.timesLost);
-    const highscoreIn = parseInt(request.query.highscore);
+    const didWinIn = parseInt(request.query.didWin);
+    const scoreIn = parseInt(request.query.score);
     const emailIn = user.email;
 
 
-    await UserModel.find({ emailIn }, (err, person) => {
+    await UserInfo.UserModel.find({ email: emailIn }, (err, person) => {
       if (err) console.log(err);
-
       if(person.length == 0) {
         const newUser = new UserInfo.UserModel ({
-          email: {emailIn}
-        })
+          email: emailIn
+        });
         person.push(newUser);
       }
-
-      // Assuming input data is updated with Old Record Data
-      const newGameRecord = new UserInfo.GameModel ({
-        Game: {gameIn},
-        timesPlayed: {timesPlayedIn},
-        timesWon: {timesWonIn},
-        timesLost: {timesLostIn},
-        highscore:{highscoreIn}
-      })
-
+      
       // For loop to check if person has played and seeing if record matches this data
       let tempIndex = -1;
       for( let g = 0; g < person[0].gameRecords.length; g ++) {
@@ -188,15 +143,49 @@ app.put('/updateUser', (request,response) => {
           tempIndex = g;
         }
       }
-
+      
       // If the game isn't new brining in newGameRecord and plugging in different data
       if(tempIndex > -1){
-        person[0].gameRecords[tempIndex] = newGameRecord;
+        // This is where the logic for updating happens
+
+        // Setting newTimesWon to increase if did win game 
+        let newTimesWon = person[0].gameRecords[tempIndex].timesWon;
+        if(didWinIn){
+          // If does not increment then this is the reason
+          newTimesWon ++;
+        }
+
+        // Setting scoreIn to change to new high score if it greater than the previous high score
+        let newHighScore = person[0].gameRecords[tempIndex].highScore;
+        if(scoreIn > newHighScore) {
+          newHighScore = scoreIn;
+        }
+
+        // This portion is in relation to the update of the new values
+        person[0].gameRecords[tempIndex].timesPlayed = person[0].gameRecords[tempIndex].timesPlayed + 1;
+        person[0].gameRecords[tempIndex].timesWon = newTimesWon;
+        person[0].gameRecords[tempIndex].highScore = newHighScore;
       } else {
+
+        // Setting the record of a new game 
+        // Setting newTimesWon to increase if did win game 
+        let newTimesWon = 0;
+        if(didWinIn){
+          // If does not increment then this is the reason
+          newTimesWon ++;
+        }
+        // Making new game record
+        const newGameRecord = new UserInfo.GameModel ({
+          game: gameIn,
+          timesPlayed: 1,
+          timesWon: newTimesWon,
+          highscore: scoreIn
+        });
         person[0].gameRecords.push(newGameRecord);
       }
       person[0].save();
 
+      // Might need to change response.send back if front end wants different info
       response.send(person[0].gameRecords);
     })
   }
