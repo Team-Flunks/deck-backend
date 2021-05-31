@@ -126,7 +126,7 @@ app.get('/allUsers', (req, res) => {
   //Pass it into verifyToken so we can use Auth0 things inside this function
   async function allUserData(user) {
     //Legacy variable names, edit here
-    let Users = await UserInfo.UserModel.find({ email: user.email });
+    let Users = await UserInfo.UserModel.find({ });
     console.log("Server Side return of Single User Pull")
     console.log(Users);
     //if the user isn't in DB yet maybe create a new user with the info passed in here
