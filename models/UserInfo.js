@@ -3,18 +3,19 @@
 const mongoose = require('mongoose');
 
 const GameSchema = new mongoose.Schema({
-  Game: {type: String, required: true},
+  game: {type: String, required: true},
   timesPlayed: {type: Number},
   timesWon: {type: Number},
   timesLost: {type: Number},
-  highscore:{type: String}
-})
+  highscore:{type: Number}
+});
+const GameModel = mongoose.model('Games', GameSchema);
 
 const UserSchema = new mongoose.Schema({
   email: {type: String, required:true},
-  gameInfo: [GameSchema]
-})
+  gameRecords: [GameSchema]
+});
 
 const UserModel = mongoose.model('Players', UserSchema);
 
-module.exports = UserModel
+module.exports = {UserModel, GameModel};
