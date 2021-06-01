@@ -17,9 +17,9 @@ app.use(express.json());
 //Created files
 const UserInfo=require('./models/UserInfo.js');
 // const GameModel=require('./models/UserInfo.js');
-const UserModel=require('./models/UserInfo.js');
-
-const verifyToken=require('./modules/verification.js');
+const UserModel = require('./models/UserInfo.js');
+const pokeInfoRequest = require('./modules/PokeAPI.js');
+const verifyToken = require('./modules/verification.js');
 
 const getBooleanFacts=require('./modules/KnowledgeAPI.js');
 
@@ -62,6 +62,9 @@ db.once('open', function () {
 });
 
 //===============ROUTING AREA===============
+
+//Refer to Modules/PokeAPI for info on what is happening here
+app.get('/pokeInfo', pokeInfoRequest);
 
 // GET single user info
 //Connection made via Auth0 email
