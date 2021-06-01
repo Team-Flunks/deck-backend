@@ -21,6 +21,8 @@ const UserModel = require('./models/UserInfo.js');
 const pokeInfoRequest = require('./modules/PokeAPI.js');
 const verifyToken = require('./modules/verification.js');
 
+const getBooleanFacts=require('./modules/KnowledgeAPI.js');
+
 
 //===============Mongoose database setup===============
 console.log(process.env.MONGODB_URI);
@@ -69,6 +71,8 @@ app.get('/pokeInfo', pokeInfoRequest);
 app.get('/singleUser', (req, res) => {
   
   // Grab and verify token
+  console.log('This is the req information for single user');
+  console.log(req.headers);
   const token = req.headers.authorization.split(' ')[1];
   verifyToken(token, singleUserData);
 
@@ -159,7 +163,7 @@ app.put('/updateUser', (request,response) => {
         }
 
         // Setting scoreIn to change to new high score if it greater than the previous high score
-        let newHighScore = person[0].gameRecords[tempIndex].highScore;
+        let newHighScore = person[0].gameRecords[tempIndex].highscore;
         if(scoreIn > newHighScore) {
           newHighScore = scoreIn;
         }
@@ -167,7 +171,7 @@ app.put('/updateUser', (request,response) => {
         // This portion is in relation to the update of the new values
         person[0].gameRecords[tempIndex].timesPlayed = person[0].gameRecords[tempIndex].timesPlayed + 1;
         person[0].gameRecords[tempIndex].timesWon = newTimesWon;
-        person[0].gameRecords[tempIndex].highScore = newHighScore;
+        person[0].gameRecords[tempIndex].highscore = newHighScore;
       } else {
 
         // Setting the record of a new game 
@@ -193,6 +197,10 @@ app.put('/updateUser', (request,response) => {
     })
   }
 });
+
+
+// Specific route for knowledge game with function
+app.get('/knowledgegame', getBooleanFacts);
 
 
 
