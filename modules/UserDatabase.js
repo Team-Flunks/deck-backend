@@ -81,7 +81,8 @@ UserDatabase.updateUser = async function (req, res){
       //If the user has no database entry add them into the database
       if(person.length == 0) {
         const newUser = new UserInfo.UserModel ({
-          email: emailIn
+          email: emailIn,
+          tokenCount: 0
         });
         person.push(newUser);
       }
@@ -100,8 +101,10 @@ UserDatabase.updateUser = async function (req, res){
         
         // Setting newTimesWon to increase if didWin is true 
         let newTimesWon = person[0].gameRecords[tempIndex].timesWon;
+        let tokenNew = person[0].tokenCount;
         if(didWinIn){
           newTimesWon ++;
+          tokenNew ++;
         }
 
         // Setting scoreIn to change to new high score if it greater than the previous high score
@@ -114,14 +117,17 @@ UserDatabase.updateUser = async function (req, res){
         person[0].gameRecords[tempIndex].timesPlayed = person[0].gameRecords[tempIndex].timesPlayed + 1;
         person[0].gameRecords[tempIndex].timesWon = newTimesWon;
         person[0].gameRecords[tempIndex].highscore = newHighScore;
+        person[0].tokenCount = tokenNew;
 
       } else {
         // If tempIndex was not changed indicating this gameRecord doesn't exists create new gameRecord
 
         // Setting newTimesWon to increase if did win game 
         let newTimesWon = 0;
+        let tokenNew = person[0].tokenCount;
         if(didWinIn){
           newTimesWon ++;
+          tokenNew ++;
         }
 
         // Making new game record
@@ -134,6 +140,7 @@ UserDatabase.updateUser = async function (req, res){
 
         //adding new gameRecord to the user for saving
         person[0].gameRecords.push(newGameRecord);
+        person[0].tokenCount = tokenNew;
       }
 
       //Save updated/new gameRecord to database and send info back to client
