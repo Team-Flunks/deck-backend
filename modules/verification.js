@@ -1,17 +1,16 @@
 'use strict';
 
-
-//===============jwt verification stuff===============
-
+//=============== Setup ===============
 const jwt = require('jsonwebtoken');
 const jwksClient = require('jwks-rsa');
 
+//===============jwt verification stuff===============
+
+//All taken from the documentation of Auth0
 
 const client = jwksClient({
-  //Might need to change depending on Auth0 weirdness
   jwksUri: 'https://keian-auth.us.auth0.com/.well-known/jwks.json',
 });
-
 
 function getKey(header, callback) {
   client.getSigningKey(header.kid, function (err, key) {

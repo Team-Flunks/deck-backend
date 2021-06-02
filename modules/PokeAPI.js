@@ -4,14 +4,14 @@
 const verifyToken = require('./verification.js');
 const axios = require('axios');
 
-//=============== Request Logic ===============
+//=============== Route Function ===============
 const pokeInfoRequest = async function (req, res) {
 
   // Verify Step
   const token = req.headers.authorization.split(' ')[1];
   verifyToken(token, pokeRequest);
 
-  //No input needed, possible modifiers like limit range of pokemon to pick by gen or something
+  //The callback function
   async function pokeRequest() {
 
     //Variable setup
@@ -20,7 +20,7 @@ const pokeInfoRequest = async function (req, res) {
     let maxRange = 898;
     let imageOut = '';
 
-    //Choosing 4 unique values in the range of pokemon
+    //Choosing 4 unique values in the range of valid pokemon indexes
     while (numPicks.length < 4) {
       let next = (Math.floor(Math.random() * (maxRange - 1)) + 1);
       if (!numPicks.includes(next)) {
@@ -31,12 +31,12 @@ const pokeInfoRequest = async function (req, res) {
     //Choosing one of the 4 options at random to be the selected pokemon
     let targetOut = Math.floor(Math.random() * 4);
 
-    //Gathering all the data for each poke index chosen
+    //Gathering all the data for each pokemon index chosen
     for (let i = 0; i < 4; i++) {
 
       //Async Function format taken from Q's example
       try {
-        //Grab the info from the specified URL
+        //Set up the URL and send the request out
         let url = `https://pokeapi.co/api/v2/pokemon/${numPicks[i]}`;
         let infoIn = await axios.get(url);
 
@@ -48,22 +48,18 @@ const pokeInfoRequest = async function (req, res) {
           imageOut = infoIn.data.sprites.other['official-artwork']['front_default'];
         }
 
-        //Error magic
+      //Error Catching
       } catch (err) {
         console.error('Poke API Error', err);
         response.status(500).send('server error');
       }
-
     }
 
     //End Result
     //Send packaged response data as object
     const data = { names: namesOut, target: targetOut, imageSrc: imageOut }
-    res.send(data);
-
+    res.status(200).send(data);
   }
-
-
 }
 
 module.exports = pokeInfoRequest;
