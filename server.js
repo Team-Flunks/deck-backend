@@ -19,7 +19,8 @@ const UserInfo = require('./models/UserInfo.js');
 const UserDatabase = require('./modules/UserDatabase.js');
 const pokeInfoRequest = require('./modules/PokeAPI.js');
 const getBooleanFacts = require('./modules/KnowledgeAPI.js');
-
+const rewardRequestQuote = require('./modules/RewardQuote.js');
+const rewardRequestImage = require('./modules/RewardImage.js');
 
 //===============Mongoose database setup===============
 console.log(process.env.MONGODB_URI);
@@ -48,7 +49,7 @@ db.once('open', function () {
             timesWon: 2,
             highscore: 4
           });
-          const TestUser = new UserInfo.UserModel({ email: 'chaboffe@gmail.com', gameRecords: [firstGame, secondGame] });
+          const TestUser = new UserInfo.UserModel({ email: 'chaboffe@gmail.com', gameRecords: [firstGame, secondGame], tokenCount: 9001 });
           TestUser.save();
           
         }
@@ -75,5 +76,8 @@ app.put('/updateUser', UserDatabase.updateUser);
 //Refer to Modules/Knowledge for info on what is happening here
 app.get('/knowledgegame', getBooleanFacts);
 
+//Refer to Modules/RewardQuote for info on what is happening here
+app.get('/rewardRequestQuote', rewardRequestQuote);
 
-
+//Refer to Modules/RewardImage for info on what is happening here
+app.get('/rewardRequestImage', rewardRequestImage);
