@@ -70,7 +70,7 @@ UserDatabase.updateUser = async function (req, res){
 
     //Pulling relevant information from the request
     const gameIn = req.query.game
-    const didWinIn = req.query.didWin;
+    const didWinIn = (req.query.didWin === 'true');
     const scoreIn = parseInt(req.query.score);
     const emailIn = user.email;
 
